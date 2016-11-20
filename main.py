@@ -9,7 +9,7 @@ import os
 
 window = tk.Tk()
 
-choices = ['pics', 'gifs', 'aww', 'nsfw']
+choices = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
 images = []
 img_num = tk.IntVar()
 basewidth = 300
