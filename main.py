@@ -48,7 +48,7 @@ def build_window():
     cwd = os.getcwd()
     init_image = cwd + "/initial.jpg"
     image = Image.open(init_image)
-    photo = ImageTk.PhotoImage(image)
+    photo = ImageTk.PhotoImage(image, bg="black")
     img_label = tk.Label(window, image=photo)
     tk.Label.image = photo
 
