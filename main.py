@@ -1,9 +1,35 @@
-import io
-import tkinter as tk
-from tkinter import *
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#   Documentation is like sex.
+#   When it's good, it's very good.
+#   When it's bad, it's better than nothing.
+#   When it lies to you, it may be a while before you realize something's wrong.
+#
+
+"""
+
+"""
+
+def main():
+
+	return 0
+
+if __name__ == '__main__':
+	main()
+
+
+try:
+	import tkinter as tk
+	from io import BytesIO
+	from urllib.request import urlopen
+except ImportError:
+	#must be python2
+	import Tkinter as tk
+	from StringIO import StringIO as BytesIO
+	from urllib import urlopen
+
 from PIL import Image, ImageTk
-from urllib.request import urlopen
-import PIL
 import praw
 import os
 
@@ -48,8 +74,8 @@ def build_window():
     cwd = os.getcwd()
     init_image = cwd + "/initial.jpg"
     image = Image.open(init_image)
-    photo = ImageTk.PhotoImage(image, bg="black")
-    img_label = tk.Label(window, image=photo)
+    photo = ImageTk.PhotoImage(image)
+    img_label = tk.Label(window, image=photo, bg="black")
     tk.Label.image = photo
 
     # set grids
@@ -75,13 +101,13 @@ def create_img_list():
 def get_image():
     image_bytes = urlopen(images[img_num.get()]).read()
     # internal data file
-    data_stream = io.BytesIO(image_bytes)
+    data_stream = BytesIO(image_bytes)
     # open as a PIL image object
     image = Image.open(data_stream)
     # resize image
     wpercent = (basewidth / float(image.size[0]))
     hsize = int((float(image.size[1]) * float(wpercent)))
-    image = image.resize((basewidth, hsize), PIL.Image.ANTIALIAS)
+    image = image.resize((basewidth, hsize), Image.ANTIALIAS)
 
     tk_image = ImageTk.PhotoImage(image)
 
