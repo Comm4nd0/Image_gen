@@ -36,9 +36,10 @@ import os
 window = tk.Tk()
 
 choices = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
+img_formats = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
 images = []
 img_num = tk.IntVar()
-basewidth = 300
+basewidth = 400
 
 def build_window():
     h = 650  # height for the Tk root
@@ -93,7 +94,7 @@ def create_img_list():
     r = praw.Reddit(user_agent='gimmy pics')
     submission = r.get_subreddit(sub).get_top(limit=100)
     for item in submission:
-        if item.url[len(item.url)-3:] == "jpg":
+        if item.url[len(item.url)-3:] in img_formats:
             images.append(item.url)
             print(item.url)
     get_image()
@@ -116,7 +117,7 @@ def get_image():
 def update_image(tk_image):
     img_label = tk.Label(window, image=tk_image, bg="black")
     tk.Label.image = tk_image
-    img_label.grid(columnspan=2, row=6, sticky='E', padx=5, pady=5)
+    img_label.grid(columnspan=2, column=1, row=6, sticky='N', padx=5, pady=5)
 
 def increse_num():
     img_num.set(img_num.get() + 1)
