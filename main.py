@@ -26,35 +26,18 @@ except ImportError:
 from PIL import Image, ImageTk
 import praw
 import os
+from functools import partial
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
 IMG_FORMATS = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
 basewidth = 400
 
-DEFAULTS = {
-    'bg':"black",
-    'fg':"white"}
-    
-class Label(tk.Label):
-    """a tk.Label with the DEFAULTS applied"""
-    def __init__(self, master, **kwargs):
-        options = DEFAULTS.copy()
-        options.update(kwargs)
-        tk.Label.__init__(self, master, **options)
-    
-class Button(tk.Button):
-    """a ttk.Button with the DEFAULTS applied"""
-    def __init__(self, master, **kwargs):
-        options = DEFAULTS.copy()
-        options.update(kwargs)
-        tk.Button.__init__(self, master, **options)
-        
-class GUI(tk.Frame):
+class GUI(ttk.Frame):
     def __init__(self, master):
-        tk.Frame.__init__(self, master, background='black')
+        ttk.Frame.__init__(self, master)
         
         self.center(800, 650)
-        self.master.configure(background='black')
+        self.master.configure(background='black') # we can't ttk the root :(
         self.master.title("Images 2.0")
         
         self.make_UI()
@@ -63,33 +46,38 @@ class GUI(tk.Frame):
         self.images = None
         
     def make_UI(self):
-        heading = Label(self, text="IMAGES", font=("Courier", 44))
+        style = ttk.Style()
+        # global style changes
+        style.configure(".", background='black', foreground='white', anchor="center")
+        # Button style changes
+        style.map("TButton", background=[('hover', 'blue')])
+        
+        heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
         
-        intro = Label(self, font=("Courier", 12))
+        intro = ttk.Label(self, font=("Courier", 12))
         intro['text']="Welcome to the image generator, select your image type below."
         intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
         
         # options
         self.var = tk.StringVar(self)
         self.var.set("Select Type")
-        option = tk.OptionMenu(self, self.var, *CHOICES)
-        option.config(**DEFAULTS)
+        option = ttk.OptionMenu(self, self.var, "Select Type", *CHOICES)
         option.grid(column=1, row=4, sticky='N')
         
         # button
-        button = Button(self, text="Get Images", command=self.create_img_list)
+        button = ttk.Button(self, text="Get Images", command=self.create_img_list)
         button.grid(column=2, row=4, sticky='N')
-        back = Button(self, text="<--", command=self.decrese_num)
+        back = ttk.Button(self, text="<--", command=self.decrese_num)
         back.grid( column=1, row=5)
-        forward = Button(self, text="-->", command=self.increse_num)
+        forward = ttk.Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
         
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
-        self.img_label = Label(self, image=self.photo)
+        self.img_label = ttk.Label(self, image=self.photo)
         self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
         
     def create_img_list(self):
@@ -112,9 +100,8 @@ class GUI(tk.Frame):
         hsize = int((float(image.size[1]) * float(wpercent)))
         image = image.resize((basewidth, hsize), Image.ANTIALIAS)
 
-        self.photo = tk_image = ImageTk.PhotoImage(image)
-
-        self.img_label.config(image=tk_image)
+        self.photo = ImageTk.PhotoImage(image)
+        self.img_label.config(image=self.photo)
 
     def increse_num(self):
         self.img_num += 1
@@ -143,5 +130,3 @@ if __name__ == '__main__':
     window = GUI(root)
     window.pack()
     root.mainloop()
-
-
