@@ -90,7 +90,7 @@ def get_image():
 def update_image(tk_image):
     img_label = tk.Label(window, image=tk_image, bg="black")
     tk.Label.image = tk_image
-    img_label.grid(columnspan=2, row=6, sticky='E', padx=5, pady=5)
+    img_label.grid(columnspan=2, row=6, sticky='N', padx=5, pady=5)
 
 def increse_num():
     img_num.set(img_num.get() + 1)
