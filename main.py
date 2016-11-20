@@ -18,7 +18,7 @@ try:
     from io import BytesIO
     from urllib.request import urlopen
 except ImportError:
-    #must be python2
+    # must be python2
     import Tkinter as tk
     import ttk
     from StringIO import StringIO as BytesIO
@@ -28,10 +28,8 @@ from PIL import Image, ImageTk
 import praw
 import os
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
-IMG_FORMATS = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
-basewidth = 400
-
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
+IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 
 
 class GUI(ttk.Frame):
@@ -44,6 +42,7 @@ class GUI(ttk.Frame):
         
         self.make_UI()
         self.r = praw.Reddit(user_agent='gimmy pics')
+        self.dl_count = 100
         self.img_num = 0
         self.images = None
         
@@ -57,10 +56,10 @@ class GUI(ttk.Frame):
         style.map("TMenubutton", background=[('hover', 'blue')])
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
 
-        heading = Label(self, text="IMAGES", font=("Courier", 44))
+        heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
         
-        intro = Label(self, font=("Courier", 12))
+        intro = ttk.Label(self, font=("Courier", 12))
         intro['text']="Welcome to the image generator, select your image type below."
         intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
         
@@ -68,15 +67,14 @@ class GUI(ttk.Frame):
         self.var = tk.StringVar(self)
         self.var.set("Select Type")
         option = ttk.OptionMenu(self, self.var, "Select Type", *CHOICES)
-        option.config(**DEFAULTS)
         option.grid(column=1, row=4, sticky='N')
         
         # button
-        button = Button(self, text="Get Images", command=self.create_img_list)
+        button = ttk.Button(self, text="Get Images", command=self.create_img_list)
         button.grid(column=2, row=4, sticky='N')
-        back = Button(self, text="<--", command=self.decrese_num)
+        back = ttk.Button(self, text="<--", command=self.decrese_num)
         back.grid( column=1, row=5)
-        forward = Button(self, text="-->", command=self.increse_num)
+        forward = ttk.Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
         
         # set inital holding image
@@ -89,7 +87,7 @@ class GUI(ttk.Frame):
     def create_img_list(self):
         sub = self.var.get()
         self.images = []
-        submission = self.r.get_subreddit(sub).get_top(limit=100)
+        submission = self.r.get_subreddit(sub).get_top(limit=self.dl_count)
         for item in submission:
             if os.path.splitext(item.url)[1] in IMG_FORMATS:
                 self.images.append(item.url)
@@ -135,6 +133,7 @@ class GUI(ttk.Frame):
         # set the dimensions of the screen
         # and where it is placed
         self.master.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
 
 if __name__ == '__main__':
     root = tk.Tk()
