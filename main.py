@@ -8,7 +8,7 @@
 #
 
 """
-A program that grabs the images from the top 100 posts on any subreddit. 
+
 """
 
 
@@ -31,6 +31,7 @@ import os
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
 IMG_FORMATS = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
 basewidth = 400
+
 
 
 class GUI(ttk.Frame):
@@ -56,6 +57,7 @@ class GUI(ttk.Frame):
         style.map("TMenubutton", background=[('hover', 'blue')])
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
 
+        heading = Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
         
         intro = Label(self, font=("Courier", 12))
