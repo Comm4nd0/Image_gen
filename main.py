@@ -28,7 +28,6 @@ import os
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
-basewidth = 800
 
 DEFAULTS = {
     'bg': "black",
@@ -117,9 +116,9 @@ class GUI(tk.Frame):
         # open as a PIL image object
         image = Image.open(data_stream)
         # resize image
-        wpercent = (basewidth / float(image.size[0]))
+        wpercent = (self.winfo_width() / float(image.size[0]))
         hsize = int((float(image.size[1]) * float(wpercent)))
-        image = image.resize((basewidth, hsize), Image.ANTIALIAS)
+        image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
 
         self.photo = tk_image = ImageTk.PhotoImage(image)
 
