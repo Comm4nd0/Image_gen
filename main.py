@@ -62,6 +62,7 @@ def build_window():
     img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5, sticky='E')
 
 def create_img_list():
+    del images[:]
     sub = var.get()
     r = praw.Reddit(user_agent='gimmy pics')
     submission = r.get_subreddit(sub).get_top(limit=100)
