@@ -8,9 +8,7 @@
 #
 
 """
-
 """
-
 
 try:
     import tkinter as tk
@@ -18,7 +16,7 @@ try:
     from io import BytesIO
     from urllib.request import urlopen
 except ImportError:
-    #must be python2
+    # must be python2
     import Tkinter as tk
     import ttk
     from StringIO import StringIO as BytesIO
@@ -28,83 +26,92 @@ from PIL import Image, ImageTk
 import praw
 import os
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
-basewidth = 400
-
+basewidth = 800
 
 DEFAULTS = {
-    'bg':"black",
-    'fg':"white"}
-    
+    'bg': "black",
+    'fg': "white"}
+
+
 class Label(tk.Label):
     """a tk.Label with the DEFAULTS applied"""
+
     def __init__(self, master, **kwargs):
         options = DEFAULTS.copy()
         options.update(kwargs)
         tk.Label.__init__(self, master, **options)
-    
+
+
 class Button(tk.Button):
     """a ttk.Button with the DEFAULTS applied"""
+
     def __init__(self, master, **kwargs):
         options = DEFAULTS.copy()
         options.update(kwargs)
         tk.Button.__init__(self, master, **options)
-        
+
+
 class GUI(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self, master, background='black')
-        
+
         self.center(800, 650)
         self.master.configure(background='black')
         self.master.title("Images 2.0")
-        
+
         self.make_UI()
         self.r = praw.Reddit(user_agent='gimmy pics')
+        self.dl_count = 100
         self.img_num = 0
         self.images = None
-        
+
     def make_UI(self):
         heading = Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
-        
+
         intro = Label(self, font=("Courier", 12))
-        intro['text']="Welcome to the image generator, select your image type below."
+        intro['text'] = "Welcome to the image generator, select your image type below."
         intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
-        
+
         # options
         self.var = tk.StringVar(self)
         self.var.set("Select Type")
         option = tk.OptionMenu(self, self.var, *CHOICES)
         option.config(**DEFAULTS)
         option.grid(column=1, row=4, sticky='N')
-        
+
         # button
         button = Button(self, text="Get Images", command=self.create_img_list)
         button.grid(column=2, row=4, sticky='N')
         back = Button(self, text="<--", command=self.decrese_num)
-        back.grid( column=1, row=5)
+        back.grid(column=1, row=5)
         forward = Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
-        
+
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = Label(self, image=self.photo)
         self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
-        
+
     def create_img_list(self):
         sub = self.var.get()
         self.images = []
-        submission = self.r.get_subreddit(sub).get_top(limit=100)
+        submission = self.r.get_subreddit(sub).get_top(limit=self.dl_count)
         for item in submission:
             if os.path.splitext(item.url)[1] in IMG_FORMATS:
                 self.images.append(item.url)
         self.get_image()
-        
+
     def get_image(self):
-        image_bytes = urlopen(self.images[self.img_num]).read()
+        try:
+            image_bytes = urlopen(self.images[self.img_num]).read()
+        except:
+            self.dl_count += 100
+            self.create_img_list()
         # internal data file
         data_stream = BytesIO(image_bytes)
         # open as a PIL image object
@@ -140,10 +147,9 @@ class GUI(tk.Frame):
         # and where it is placed
         self.master.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
+
 if __name__ == '__main__':
     root = tk.Tk()
     window = GUI(root)
     window.pack()
     root.mainloop()
-
-
