@@ -11,122 +11,139 @@
 
 """
 
-def main():
-
-	return 0
-
-if __name__ == '__main__':
-	main()
-
 
 try:
-	import tkinter as tk
-	from io import BytesIO
-	from urllib.request import urlopen
+    import tkinter as tk
+    from tkinter import ttk
+    from io import BytesIO
+    from urllib.request import urlopen
 except ImportError:
-	#must be python2
-	import Tkinter as tk
-	from StringIO import StringIO as BytesIO
-	from urllib import urlopen
+    #must be python2
+    import Tkinter as tk
+    import ttk
+    from StringIO import StringIO as BytesIO
+    from urllib import urlopen
 
 from PIL import Image, ImageTk
 import praw
 import os
 
-window = tk.Tk()
-
-choices = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
-img_formats = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
-images = []
-img_num = tk.IntVar()
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
+IMG_FORMATS = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
 basewidth = 400
 
-def build_window():
-    h = 650  # height for the Tk root
-    w = 800  # width for the Tk root
 
-    # get screen width and height
-    ws = window.winfo_screenwidth()  # width of the screen
-    hs = window.winfo_screenheight()  # height of the screen
+DEFAULTS = {
+    'bg':"black",
+    'fg':"white"}
+    
+class Label(tk.Label):
+    """a tk.Label with the DEFAULTS applied"""
+    def __init__(self, master, **kwargs):
+        options = DEFAULTS.copy()
+        options.update(kwargs)
+        tk.Label.__init__(self, master, **options)
+    
+class Button(tk.Button):
+    """a ttk.Button with the DEFAULTS applied"""
+    def __init__(self, master, **kwargs):
+        options = DEFAULTS.copy()
+        options.update(kwargs)
+        tk.Button.__init__(self, master, **options)
+        
+class GUI(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master, background='black')
+        
+        self.center(800, 650)
+        self.master.configure(background='black')
+        self.master.title("Images 2.0")
+        
+        self.make_UI()
+        self.r = praw.Reddit(user_agent='gimmy pics')
+        self.img_num = 0
+        self.images = None
+        
+    def make_UI(self):
+        heading = Label(self, text="IMAGES", font=("Courier", 44))
+        heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
+        
+        intro = Label(self, font=("Courier", 12))
+        intro['text']="Welcome to the image generator, select your image type below."
+        intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
+        
+        # options
+        self.var = tk.StringVar(self)
+        self.var.set("Select Type")
+        option = tk.OptionMenu(self, self.var, *CHOICES)
+        option.config(**DEFAULTS)
+        option.grid(column=1, row=4, sticky='N')
+        
+        # button
+        button = Button(self, text="Get Images", command=self.create_img_list)
+        button.grid(column=2, row=4, sticky='N')
+        back = Button(self, text="<--", command=self.decrese_num)
+        back.grid( column=1, row=5)
+        forward = Button(self, text="-->", command=self.increse_num)
+        forward.grid(column=2, row=5)
+        
+        # set inital holding image
+        init_image = "initial.jpg"
+        image = Image.open(init_image)
+        self.photo = ImageTk.PhotoImage(image)
+        self.img_label = Label(self, image=self.photo)
+        self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5, sticky='E')
+        
+    def create_img_list(self):
+        sub = self.var.get()
+        self.images = []
+        submission = self.r.get_subreddit(sub).get_top(limit=100)
+        for item in submission:
+            if item.url[len(item.url)-3:] in IMG_FORMATS:
+                self.images.append(item.url)
+        self.get_image()
+        
+    def get_image(self):
+        image_bytes = urlopen(self.images[self.img_num]).read()
+        # internal data file
+        data_stream = BytesIO(image_bytes)
+        # open as a PIL image object
+        image = Image.open(data_stream)
+        # resize image
+        wpercent = (basewidth / float(image.size[0]))
+        hsize = int((float(image.size[1]) * float(wpercent)))
+        image = image.resize((basewidth, hsize), Image.ANTIALIAS)
 
-    # calculate x and y coordinates for the Tk root window
-    x = (ws / 2) - (w / 2)
-    y = (hs / 2) - (h / 2)
+        self.photo = tk_image = ImageTk.PhotoImage(image)
 
-    # set the dimensions of the screen
-    # and where it is placed
-    window.geometry('%dx%d+%d+%d' % (w, h, x, y))
-    window.configure(background='black')
-    window.title("Images 2.0")
-    heading = tk.Label(window, text="IMAGES", bg="black", fg="white", font=("Courier", 44))
-    intro = tk.Label(window, text="Welcome to the image generator, select your image type below.", bg="black", fg="white", font=("Courier", 12))
-    # options
-    global var
-    var = tk.StringVar(window)
-    var.set("Select Type")
-    option = tk.OptionMenu(window, var, *choices)
-    option.config(bg="black", fg="white")
-    # button
-    button = tk.Button(window, text="Get Images", command=create_img_list, bg="black", fg="white")
-    back = tk.Button(window, text="<--", command=decrese_num, bg="black", fg="white")
-    forward = tk.Button(window, text="-->", command=increse_num, bg="black", fg="white")
+        self.img_label.config(image=tk_image)
 
-    # set inital holding image
-    cwd = os.getcwd()
-    init_image = cwd + "/initial.jpg"
-    image = Image.open(init_image)
-    photo = ImageTk.PhotoImage(image)
-    img_label = tk.Label(window, image=photo, bg="black")
-    tk.Label.image = photo
+    def increse_num(self):
+        self.img_num += 1
+        self.get_image()
 
-    # set grids
-    heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
-    intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
-    option.grid(column=1, row=4, sticky='N')
-    button.grid(column=2, row=4, sticky='N')
-    back.grid( column=1, row=5)
-    forward.grid(column=2, row=5)
-    img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5, sticky='E')
+    def decrese_num(self):
+        self.img_num -= 1
+        self.get_image()
 
-def create_img_list():
-    del images[:]
-    sub = var.get()
-    r = praw.Reddit(user_agent='gimmy pics')
-    submission = r.get_subreddit(sub).get_top(limit=100)
-    for item in submission:
-        if item.url[len(item.url)-3:] in img_formats:
-            images.append(item.url)
-            print(item.url)
-    get_image()
+    def center(self, width, height):
+        """center the window on the screen"""
+        # get screen width and height
+        ws = self.master.winfo_screenwidth()  # width of the screen
+        hs = self.master.winfo_screenheight()  # height of the screen
 
-def get_image():
-    image_bytes = urlopen(images[img_num.get()]).read()
-    # internal data file
-    data_stream = BytesIO(image_bytes)
-    # open as a PIL image object
-    image = Image.open(data_stream)
-    # resize image
-    wpercent = (basewidth / float(image.size[0]))
-    hsize = int((float(image.size[1]) * float(wpercent)))
-    image = image.resize((basewidth, hsize), Image.ANTIALIAS)
+        # calculate x and y coordinates for the Tk root window
+        x = (ws / 2) - (width / 2)
+        y = (hs / 2) - (height / 2)
 
-    tk_image = ImageTk.PhotoImage(image)
+        # set the dimensions of the screen
+        # and where it is placed
+        self.master.geometry('%dx%d+%d+%d' % (width, height, x, y))
 
-    update_image(tk_image)
+if __name__ == '__main__':
+    root = tk.Tk()
+    window = GUI(root)
+    window.pack()
+    root.mainloop()
 
-def update_image(tk_image):
-    img_label = tk.Label(window, image=tk_image, bg="black")
-    tk.Label.image = tk_image
-    img_label.grid(columnspan=2, column=1, row=6, sticky='N', padx=5, pady=5)
 
-def increse_num():
-    img_num.set(img_num.get() + 1)
-    get_image()
-
-def decrese_num():
-    img_num.set(img_num.get() - 1)
-    get_image()
-
-build_window()
-
-window.mainloop()
