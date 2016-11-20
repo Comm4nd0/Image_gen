@@ -51,6 +51,8 @@ class GUI(ttk.Frame):
         style.configure(".", background='black', foreground='white', anchor="center")
         # Button style changes
         style.map("TButton", background=[('hover', 'blue')])
+        # Optionmenu. The actual menu cannot be themed :(
+        style.map("TMenubutton", background=[('hover', 'blue')]) 
         
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
