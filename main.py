@@ -35,17 +35,17 @@ IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 class GUI(ttk.Frame):
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
-        
+
         self.center(800, 650)
         self.master.configure(background='black')
         self.master.title("Images 2.0")
-        
+
         self.make_UI()
         self.r = praw.Reddit(user_agent='gimmy pics')
         self.dl_count = 100
         self.img_num = 0
         self.images = None
-        
+
     def make_UI(self):
         style = ttk.Style()
         # global style changes
@@ -58,17 +58,17 @@ class GUI(ttk.Frame):
 
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
-        
+
         intro = ttk.Label(self, font=("Courier", 12))
         intro['text']="Welcome to the image generator, select your image type below."
         intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
-        
+
         # options
         self.var = tk.StringVar(self)
         self.var.set("Select Type")
         option = ttk.OptionMenu(self, self.var, "Select Type", *CHOICES)
         option.grid(column=1, row=4, sticky='N')
-        
+
         # button
         button = ttk.Button(self, text="Get Images", command=self.create_img_list)
         button.grid(column=2, row=4, sticky='N')
@@ -76,14 +76,14 @@ class GUI(ttk.Frame):
         back.grid( column=1, row=5)
         forward = ttk.Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
-        
+
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = ttk.Label(self, image=self.photo)
         self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
-        
+
     def create_img_list(self):
         sub = self.var.get()
         self.images = []
@@ -92,7 +92,7 @@ class GUI(ttk.Frame):
             if os.path.splitext(item.url)[1] in IMG_FORMATS:
                 self.images.append(item.url)
         self.get_image()
-        
+
     def get_image(self):
         try:
             image_bytes = urlopen(self.images[self.img_num]).read()
