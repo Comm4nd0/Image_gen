@@ -92,7 +92,7 @@ class GUI(tk.Frame):
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = Label(self, image=self.photo)
-        self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5, sticky='E')
+        self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
         
     def create_img_list(self):
         sub = self.var.get()
