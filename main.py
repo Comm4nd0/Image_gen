@@ -90,7 +90,7 @@ class GUI(ttk.Frame):
     def create_img_list(self):
         sub = self.var.get()
         self.images = []
-        submission = self.r.get_subreddit(sub).get_top(limit=self.dl_count)
+        submission = self.r.get_subreddit(sub).get_hot(limit=self.dl_count)
         for item in submission:
             if os.path.splitext(item.url)[1] in IMG_FORMATS:
                 self.images.append(item.url)
