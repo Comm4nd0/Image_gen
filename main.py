@@ -40,7 +40,12 @@ class GUI(ttk.Frame):
         self.master.configure(background='black')
         self.master.title("Images 2.0")
 
+        # causes the full width of the window to be used
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(1, weight=1)
+
         self.make_UI()
+
         self.r = praw.Reddit(user_agent='gimmy pics')
         self.dl_count = 100
         self.img_num = 0
@@ -54,7 +59,6 @@ class GUI(ttk.Frame):
         style.map("TButton", background=[('hover', 'blue')])
         # Optionmenu. The actual menu cannot be themed :(
         style.map("TMenubutton", background=[('hover', 'blue')])
-        heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
 
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
         heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
@@ -138,7 +142,7 @@ class GUI(ttk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
     window = GUI(root)
-    window.pack()
+    window.pack(fill=tk.X, expand=True, anchor=tk.CENTER)
     root.mainloop()
 
 
