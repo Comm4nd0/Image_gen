@@ -8,7 +8,6 @@
 #
 
 """
-
 """
 
 
@@ -103,6 +102,7 @@ class GUI(ttk.Frame):
         except:
             self.dl_count += 100
             self.create_img_list()
+            image_bytes = urlopen(self.images[self.img_num]).read()
         # internal data file
         data_stream = BytesIO(image_bytes)
         # open as a PIL image object
@@ -144,5 +144,3 @@ if __name__ == '__main__':
     window = GUI(root)
     window.pack(fill=tk.X, expand=True, anchor=tk.CENTER)
     root.mainloop()
-
-
