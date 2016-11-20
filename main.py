@@ -142,5 +142,5 @@ class GUI(ttk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
     window = GUI(root)
-    window.pack(fill=tk.X, expand=True, anchor=tk.CENTER)
+    window.pack(fill=tk.X, expand=True, anchor=tk.N)
     root.mainloop()
