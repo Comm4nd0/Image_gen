@@ -29,7 +29,7 @@ import praw
 import os
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'nsfw']
-IMG_FORMATS = ['jpg', 'gif', 'png', 'jpeg', 'bmp']
+IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 basewidth = 400
 
 
@@ -99,7 +99,7 @@ class GUI(tk.Frame):
         self.images = []
         submission = self.r.get_subreddit(sub).get_top(limit=100)
         for item in submission:
-            if item.url[len(item.url)-3:] in IMG_FORMATS:
+            if os.path.splitext(item.url)[1] in IMG_FORMATS:
                 self.images.append(item.url)
         self.get_image()
         
