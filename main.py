@@ -31,14 +31,9 @@ CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 
 class ImageGetter(praw.Reddit):
-    def __init__(self):
-        praw.Reddit.__init__(self, user_agent='gimmy pics')
-
-        self.subreddit = None
-        self.images = []
-
     def load_subreddit(self, subreddit):
         #makes the generator. Reddit has a limit of 1,000 results
+        self.images = []
         self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
 
     def get_img_url(self, num=None):
@@ -64,9 +59,8 @@ class GUI(ttk.Frame):
         self.columnconfigure(1, weight=1)
 
         self.make_UI()
-        self.r = ImageGetter()
+        self.r = ImageGetter(user_agent='gimmy pics')
         self.img_num = 0
-
 
     def make_UI(self):
         style = ttk.Style()
@@ -123,7 +117,6 @@ class GUI(ttk.Frame):
         image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
 
         self.photo = ImageTk.PhotoImage(image)
-
         self.img_label.config(image=self.photo)
 
     def increse_num(self):
