@@ -30,6 +30,21 @@ import os
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 
+class ImageGetter(praw.Reddit):
+    def load_subreddit(self, subreddit):
+        #makes the generator. Reddit has a limit of 1,000 results
+        self.images = []
+        self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
+
+    def get_img_url(self, num=None):
+        """returns the image url from the list or the next image in the subreddit"""
+        if num is None or num >= len(self.images):
+            for item in self.subreddit:
+                if os.path.splitext(item.url)[1] in IMG_FORMATS:
+                    self.images.append(item.url)
+                    return item.url
+        else:
+            return self.images[num]
 
 class GUI(ttk.Frame):
     def __init__(self, master):
@@ -44,11 +59,8 @@ class GUI(ttk.Frame):
         self.columnconfigure(1, weight=1)
 
         self.make_UI()
-
-        self.r = praw.Reddit(user_agent='gimmy pics')
-        self.dl_count = 100
+        self.r = ImageGetter(user_agent='gimmy pics')
         self.img_num = 0
-        self.images = None
 
     def make_UI(self):
         style = ttk.Style()
@@ -88,21 +100,13 @@ class GUI(ttk.Frame):
         self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
 
     def create_img_list(self):
-        sub = self.var.get()
-        self.images = []
-        submission = self.r.get_subreddit(sub).get_hot(limit=self.dl_count)
-        for item in submission:
-            if os.path.splitext(item.url)[1] in IMG_FORMATS:
-                self.images.append(item.url)
+        self.r.load_subreddit(self.var.get())
+        self.img_num = 0
         self.get_image()
 
     def get_image(self):
-        try:
-            image_bytes = urlopen(self.images[self.img_num]).read()
-        except:
-            self.dl_count += 100
-            self.create_img_list()
-            image_bytes = urlopen(self.images[self.img_num]).read()
+        image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
+
         # internal data file
         data_stream = BytesIO(image_bytes)
         # open as a PIL image object
@@ -113,7 +117,6 @@ class GUI(ttk.Frame):
         image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
 
         self.photo = ImageTk.PhotoImage(image)
-
         self.img_label.config(image=self.photo)
 
     def increse_num(self):
@@ -144,3 +147,5 @@ if __name__ == '__main__':
     window = GUI(root)
     window.pack(fill=tk.X, expand=True, anchor=tk.N)
     root.mainloop()
+
+
