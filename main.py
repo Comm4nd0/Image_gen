@@ -8,7 +8,6 @@
 #
 
 """
-
 """
 
 
@@ -40,7 +39,7 @@ class ImageGetter(praw.Reddit):
 
     def load_subreddit(self, subreddit):
         #makes the generator. Reddit has a limit of 1,000 results
-        self.subreddit = self.get_subreddit(subreddit).get_top(limit=None)
+        self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
 
     def get_img_url(self, num=None):
         """returns the image url from the list or the next image in the subreddit"""
@@ -67,6 +66,7 @@ class GUI(ttk.Frame):
         self.make_UI()
         self.r = ImageGetter()
         self.img_num = 0
+
 
     def make_UI(self):
         style = ttk.Style()
@@ -123,6 +123,7 @@ class GUI(ttk.Frame):
         image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
 
         self.photo = ImageTk.PhotoImage(image)
+
         self.img_label.config(image=self.photo)
 
     def increse_num(self):
@@ -151,7 +152,7 @@ class GUI(ttk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
     window = GUI(root)
-    window.pack(fill=tk.X, expand=True, anchor=tk.CENTER)
+    window.pack(fill=tk.X, expand=True, anchor=tk.N)
     root.mainloop()
 
 
