@@ -26,11 +26,13 @@ except ImportError:
 from PIL import Image, ImageTk
 import praw
 import os
+import time
+import threading
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 GIF = []
-TITLE = ""
+TITLE = []
 
 class ImageGetter(praw.Reddit):
     def load_subreddit(self, subreddit):
@@ -44,7 +46,7 @@ class ImageGetter(praw.Reddit):
         if num is None or num >= len(self.images):
             for item in self.subreddit:
                 if os.path.splitext(item.url)[1] in IMG_FORMATS:
-                    TITLE = item.title
+                    TITLE.append(item.title)
                     self.images.append(item.url)
                     return item.url
         else:
@@ -101,7 +103,7 @@ class GUI(ttk.Frame):
         forward.grid(column=2, row=5)
 
         # set initial title
-        self.img_title = ttk.Label(self, font=("Courier", 20))
+        self.img_title = ttk.Label(self, font=("Courier", 15))
         self.img_title['text'] = "Minions"
         self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='WENS')
 
@@ -113,8 +115,7 @@ class GUI(ttk.Frame):
         self.img_label.grid(column=1, row=8, columnspan=2, padx=5, pady=5)
 
     def get_title(self):
-        #title = self.r.get_img_title(1)
-        self.img_title['text'] = TITLE
+        self.img_title['text'] = TITLE[self.img_num]
 
     def create_img_list(self):
         self.r.load_subreddit(self.var.get())
@@ -129,29 +130,33 @@ class GUI(ttk.Frame):
         # open as a PIL image object
         image = Image.open(data_stream)
         # resize image
-        wpercent = (self.winfo_width() / float(image.size[0]))
+        width = self.winfo_width() - 500
+        wpercent = (width / float(image.size[0]))
         hsize = int((float(image.size[1] ) * float(wpercent)))
-        image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
+        image = image.resize((width, hsize), Image.ANTIALIAS)
 
         if os.path.splitext(self.r.get_img_url(self.img_num))[1] == '.gif':
             print("this is a gif!")
-
-            x = 0
-            while True:
-                try:
-                    print("this")
-                    self.photo = ImageTk.PhotoImage(image, format="gif -index 0")
-                    self.img_label.config(image=self.photo)
-                    self.photo["format"] = "gif -index " + str(x)
-                    self.img_label["image"] = image
-                    x += 1
-                except:
-                    break
+            threading.Thread(self.play_giff(image))
 
         else:
             self.photo = ImageTk.PhotoImage(image)
             self.img_label.config(image=self.photo)
         self.get_title()
+
+    def play_giff(self, image):
+        self.num = 0
+        while True:
+            try:
+                time.sleep(0.04)
+                self.photo = ImageTk.PhotoImage(image, format="gif - {}".format(self.num))
+
+                self.img_label.config(image=self.photo)
+                self.img_label.image = self.photo
+
+                self.num += 1
+            except:
+                self.num = 0
 
     def increse_num(self):
         self.img_num += 1
