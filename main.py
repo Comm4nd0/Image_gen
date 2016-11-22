@@ -30,6 +30,7 @@ import os
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 GIF = []
+TITLE = ""
 
 class ImageGetter(praw.Reddit):
     def load_subreddit(self, subreddit):
@@ -38,20 +39,20 @@ class ImageGetter(praw.Reddit):
         self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
 
     def get_img_url(self, num=None):
+        global TITLE
         """returns the image url from the list or the next image in the subreddit"""
         if num is None or num >= len(self.images):
             for item in self.subreddit:
                 if os.path.splitext(item.url)[1] in IMG_FORMATS:
+                    TITLE = item.title
                     self.images.append(item.url)
                     return item.url
         else:
             return self.images[num]
 
-    def get_img_title(self, num=None):
-        if num is None or num >= len(self.images):
-            for item in self.subreddit:
-                if os.path.splitext(item.url)[1] in IMG_FORMATS:
-                    return item.title
+    def get_img_title(self, title):
+        return title
+
 
 class GUI(ttk.Frame):
     def __init__(self, master):
@@ -112,8 +113,8 @@ class GUI(ttk.Frame):
         self.img_label.grid(column=1, row=8, columnspan=2, padx=5, pady=5)
 
     def get_title(self):
-        title = self.r.get_img_title()
-        self.img_title['text'] = title
+        #title = self.r.get_img_title(1)
+        self.img_title['text'] = TITLE
 
     def create_img_list(self):
         self.r.load_subreddit(self.var.get())
@@ -121,7 +122,6 @@ class GUI(ttk.Frame):
         self.get_image()
 
     def get_image(self):
-        self.get_title()
         image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
 
         # internal data file
@@ -151,6 +151,7 @@ class GUI(ttk.Frame):
         else:
             self.photo = ImageTk.PhotoImage(image)
             self.img_label.config(image=self.photo)
+        self.get_title()
 
     def increse_num(self):
         self.img_num += 1
