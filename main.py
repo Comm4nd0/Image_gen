@@ -29,6 +29,7 @@ import os
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
+GIF = []
 
 class ImageGetter(praw.Reddit):
     def load_subreddit(self, subreddit):
@@ -45,6 +46,12 @@ class ImageGetter(praw.Reddit):
                     return item.url
         else:
             return self.images[num]
+
+    def get_img_title(self, num=None):
+        if num is None or num >= len(self.images):
+            for item in self.subreddit:
+                if os.path.splitext(item.url)[1] in IMG_FORMATS:
+                    return item.title
 
 class GUI(ttk.Frame):
     def __init__(self, master):
@@ -92,12 +99,21 @@ class GUI(ttk.Frame):
         forward = ttk.Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
 
+        # set initial title
+        self.img_title = ttk.Label(self, font=("Courier", 20))
+        self.img_title['text'] = "Minions"
+        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='WENS')
+
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = ttk.Label(self, image=self.photo)
-        self.img_label.grid(column=1, row=6, columnspan=2, padx=5, pady=5)
+        self.img_label.grid(column=1, row=8, columnspan=2, padx=5, pady=5)
+
+    def get_title(self):
+        title = self.r.get_img_title()
+        self.img_title['text'] = title
 
     def create_img_list(self):
         self.r.load_subreddit(self.var.get())
@@ -105,6 +121,7 @@ class GUI(ttk.Frame):
         self.get_image()
 
     def get_image(self):
+        self.get_title()
         image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
 
         # internal data file
@@ -113,11 +130,27 @@ class GUI(ttk.Frame):
         image = Image.open(data_stream)
         # resize image
         wpercent = (self.winfo_width() / float(image.size[0]))
-        hsize = int((float(image.size[1]) * float(wpercent)))
+        hsize = int((float(image.size[1] ) * float(wpercent)))
         image = image.resize((self.winfo_width(), hsize), Image.ANTIALIAS)
 
-        self.photo = ImageTk.PhotoImage(image)
-        self.img_label.config(image=self.photo)
+        if os.path.splitext(self.r.get_img_url(self.img_num))[1] == '.gif':
+            print("this is a gif!")
+
+            x = 0
+            while True:
+                try:
+                    print("this")
+                    self.photo = ImageTk.PhotoImage(image, format="gif -index 0")
+                    self.img_label.config(image=self.photo)
+                    self.photo["format"] = "gif -index " + str(x)
+                    self.img_label["image"] = image
+                    x += 1
+                except:
+                    break
+
+        else:
+            self.photo = ImageTk.PhotoImage(image)
+            self.img_label.config(image=self.photo)
 
     def increse_num(self):
         self.img_num += 1
@@ -147,5 +180,4 @@ if __name__ == '__main__':
     window = GUI(root)
     window.pack(fill=tk.X, expand=True, anchor=tk.N)
     root.mainloop()
-
 
