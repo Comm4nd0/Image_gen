@@ -26,11 +26,10 @@ except ImportError:
 from PIL import Image, ImageTk
 import praw
 import os
-import time
+import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
-ANA_FORMAT = ['.gif', '.webm', '.gifv']
 GIF = []
 TITLE = []
 
@@ -42,8 +41,8 @@ class ImageGetter(praw.Reddit):
         del TITLE[:]
 
     def get_img_url(self, num=None):
-        global TITLE
         """returns the image url from the list or the next image in the subreddit"""
+        global TITLE
         if num is None or num >= len(self.images):
             for item in self.subreddit:
                 if os.path.splitext(item.url)[1] in IMG_FORMATS:
@@ -72,6 +71,8 @@ class GUI(ttk.Frame):
         self.make_UI()
         self.r = ImageGetter(user_agent='gimmy pics')
         self.img_num = 0
+
+        self.web = browser.createWebpage()
 
     def make_UI(self):
         style = ttk.Style()
@@ -106,7 +107,7 @@ class GUI(ttk.Frame):
         forward.grid(column=2, row=5)
 
         # side panel buttons
-        browser_button = ttk.Button(self, text="Open in Browser", command=self.create_img_list)
+        browser_button = ttk.Button(self, text="Open in Browser", command=self.load_browser)
         browser_button.grid(column=3, row=4, sticky='WENS')
         exit_button = ttk.Button(self, text="Exit", command=self.exit)
         exit_button.grid(column=3, row=5, sticky='WENS')
@@ -144,28 +145,12 @@ class GUI(ttk.Frame):
         hsize = int((float(image.size[1] ) * float(wpercent)))
         image = image.resize((width, hsize), Image.ANTIALIAS)
 
-        if os.path.splitext(self.r.get_img_url(self.img_num))[1] == '.gif':
-            print("this is a gif!")
-            threading.Thread(self.play_giff(image))
-
-        else:
-            self.photo = ImageTk.PhotoImage(image)
-            self.img_label.config(image=self.photo)
+        self.photo = ImageTk.PhotoImage(image)
+        self.img_label.config(image=self.photo)
         self.get_title()
 
-    def play_giff(self, image):
-        self.num = 0
-        while True:
-            try:
-                time.sleep(0.04)
-                self.photo = ImageTk.PhotoImage(image, format="gif - {}".format(self.num))
-
-                self.img_label.config(image=self.photo)
-                self.img_label.image = self.photo
-
-                self.num += 1
-            except:
-                self.num = 0
+    def load_browser(self):
+        self.web.get_urls(self.var.get())
 
     def increse_num(self):
         self.img_num += 1
