@@ -29,7 +29,8 @@ import os
 import time
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
-IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
+IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
+ANA_FORMAT = ['.gif', '.webm', '.gifv']
 GIF = []
 TITLE = []
 
@@ -97,22 +98,30 @@ class GUI(ttk.Frame):
         # button
         button = ttk.Button(self, text="Get Images", command=self.create_img_list)
         button.grid(column=2, row=4, sticky='N')
+
+        # navigation buttons
         back = ttk.Button(self, text="<--", command=self.decrese_num)
         back.grid( column=1, row=5)
         forward = ttk.Button(self, text="-->", command=self.increse_num)
         forward.grid(column=2, row=5)
 
+        # side panel buttons
+        browser_button = ttk.Button(self, text="Open in Browser", command=self.create_img_list)
+        browser_button.grid(column=3, row=4, sticky='WENS')
+        exit_button = ttk.Button(self, text="Exit", command=self.exit)
+        exit_button.grid(column=3, row=5, sticky='WENS')
+
         # set initial title
         self.img_title = ttk.Label(self, font=("Courier", 15), wraplength=750)
         self.img_title['text'] = "Minions"
-        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='WENS' )
+        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='NSEW' )
 
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = ttk.Label(self, image=self.photo)
-        self.img_label.grid(column=1, row=8, columnspan=2, padx=5, pady=5)
+        self.img_label.grid(column=1, row=8, columnspan=3, padx=5, pady=5)
 
     def get_title(self):
         self.img_title['text'] = TITLE[self.img_num]
@@ -179,6 +188,8 @@ class GUI(ttk.Frame):
         # set the dimensions of the screen
         # and where it is placed
         self.master.geometry('%dx%d+%d+%d' % (width, height, x, y))
+    def exit(self):
+        quit()
 
 
 if __name__ == '__main__':
