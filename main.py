@@ -27,9 +27,8 @@ from PIL import Image, ImageTk
 import praw
 import os
 import time
-import threading
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw', 'HighResNSFW', 'BustyPetite', 'boltedontits']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
@@ -103,9 +102,9 @@ class GUI(ttk.Frame):
         forward.grid(column=2, row=5)
 
         # set initial title
-        self.img_title = ttk.Label(self, font=("Courier", 15))
+        self.img_title = ttk.Label(self, font=("Courier", 15), wraplength=750)
         self.img_title['text'] = "Minions"
-        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='WENS')
+        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='WENS' )
 
         # set inital holding image
         init_image = "initial.jpg"
