@@ -28,7 +28,7 @@ import praw
 import os
 import time
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw', 'HighResNSFW', 'BustyPetite', 'boltedontits']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'nsfw']
 IMG_FORMATS = ['.jpg', '.gif', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
@@ -38,6 +38,7 @@ class ImageGetter(praw.Reddit):
         #makes the generator. Reddit has a limit of 1,000 results
         self.images = []
         self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
+        del TITLE[:]
 
     def get_img_url(self, num=None):
         global TITLE
