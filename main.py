@@ -28,7 +28,7 @@ import praw
 import os
 import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw', 'HighResNSFW', 'tightdresses', 'BustyPetite', 'boltedontits']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
