@@ -30,7 +30,7 @@ class createWebpage():
         for url in self.image_paths:
             type = os.path.splitext(url)[1]
             type = type.replace('.', '')
-            self.image_urls += '<source src="' + url + ' type="video/' + type + '">'
+            self.image_urls += '<source src="' + url + '" type="video/' + type + '">'
             print(self.image_urls)
 
 
