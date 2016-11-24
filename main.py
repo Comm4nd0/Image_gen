@@ -28,7 +28,7 @@ import praw
 import os
 import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw', 'HighResNSFW', 'tightdresses', 'BustyPetite', 'boltedontits']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
@@ -60,7 +60,7 @@ class GUI(ttk.Frame):
     def __init__(self, master):
         ttk.Frame.__init__(self, master)
 
-        self.center(800, 650)
+        self.center(1000, 850)
         self.master.configure(background='black')
         self.master.title("Images 2.0")
 
@@ -150,7 +150,23 @@ class GUI(ttk.Frame):
         self.get_title()
 
     def load_browser(self):
-        self.web.get_urls(self.var.get())
+        # load images and webpage
+        res = self.web.get_urls(self.var.get())
+
+        # if none found then show empty image
+        if res == 0:
+            self.img_title['text'] = "No anamated images found!"
+            self.path = os.getcwd() + "/empty.jpeg"
+            image = Image.open(self.path)
+            self.photo = ImageTk.PhotoImage(image)
+            self.img_label.config(image=self.photo)
+        elif res == 1:
+            self.img_title['text'] = "Web page loaded! Have fun ;)"
+            self.path = os.getcwd() + "/browser.jpg"
+            image = Image.open(self.path)
+            self.photo = ImageTk.PhotoImage(image)
+            self.img_label.config(image=self.photo)
+
 
     def increse_num(self):
         self.img_num += 1
