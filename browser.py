@@ -23,7 +23,8 @@ class createWebpage():
         self.http = urllib3.PoolManager()
 
     def get_urls(self, subreddit):
-        self.clear_cache()
+        del self.image_paths[:]
+        del self.img_thumbnails[:]
         self.subreddit = self.web.get_subreddit(subreddit).get_hot(limit=100)
         for item in self.subreddit:
             if os.path.splitext(item.url)[1] in ANA_FORMAT:
@@ -32,16 +33,9 @@ class createWebpage():
             elif 'gfycat.com' in item.url:
                 self.get_gfycat(item.url)
                 self.img_thumbnails.append(item.thumbnail)
-        if len(self.image_paths) == 0:
-            return 0
         else:
             self.makeHTML()
             return 1
-
-    def clear_cache(self):
-        self.image_html = ""
-        del self.image_paths[:]
-        del self.img_thumbnails[:]
 
     def makeHTML(self):
         num = 0
@@ -78,10 +72,13 @@ class createWebpage():
         webbrowser.open('images.html')
 
     def get_gfycat(self, url):
-        req = self.http.request('GET', url)
-        soup = BeautifulSoup(req.data, "lxml")
-        scrape = soup.find_all(id="mp4Source")
-        scrape = str(scrape[0])
-        start = scrape.find('https://')
-        end = scrape.find('.mp4') + 4
-        self.image_paths.append(scrape[start:end])
+        try:
+            req = self.http.request('GET', url)
+            soup = BeautifulSoup(req.data, "lxml")
+            scrape = soup.find_all(id="mp4Source")
+            scrape = str(scrape[0])
+            start = scrape.find('https://')
+            end = scrape.find('.mp4') + 4
+            self.image_paths.append(scrape[start:end])
+        except:
+            pass
