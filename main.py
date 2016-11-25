@@ -85,7 +85,7 @@ class GUI(ttk.Frame):
         style.map("TEntry", foreground=[('focus', 'blue2')])
         style.map("TEntry", foreground=[('active', 'green2')])
 
-        heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
+        heading = ttk.Label(self, text="IMAGE GEN", font=("Courier", 44))
         heading.grid(column=0, row=0, rowspan=2, columnspan=4, sticky='WENS')
 
         intro = ttk.Label(self, font=("Courier", 16))
