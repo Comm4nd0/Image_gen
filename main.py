@@ -28,7 +28,7 @@ import praw
 import os
 import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw', 'HighResNSFW', 'tightdresses', 'BustyPetite', 'boltedontits', 'mastersofanal', 'porninfifteenseconds', '60fpsporn']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
@@ -77,64 +77,94 @@ class GUI(ttk.Frame):
     def make_UI(self):
         style = ttk.Style()
         # global style changes
-        style.configure(".", background='black', foreground='white', anchor="center")
+        style.configure(".", background='black', foreground='grey', anchor="center")
         # Button style changes
         style.map("TButton", background=[('hover', 'blue')])
         # Optionmenu. The actual menu cannot be themed :(
         style.map("TMenubutton", background=[('hover', 'blue')])
+        style.map("TEntry", foreground=[('focus', 'blue2')])
+        style.map("TEntry", foreground=[('active', 'green2')])
 
         heading = ttk.Label(self, text="IMAGES", font=("Courier", 44))
-        heading.grid(column=1, row=0, rowspan=2, columnspan=2, sticky='WENS')
+        heading.grid(column=0, row=0, rowspan=2, columnspan=4, sticky='WENS')
 
-        intro = ttk.Label(self, font=("Courier", 12))
+        intro = ttk.Label(self, font=("Courier", 16))
         intro['text']="Welcome to the image generator, select your image type below."
-        intro.grid(column=1, row=2, rowspan=2, columnspan=2, sticky='WENS')
+        intro.grid(column=0, row=2, rowspan=2, columnspan=4, sticky='WENS', padx=5, pady=20)
+
+        # EXIT
+        exit_button = ttk.Button(self, text="Exit", command=self.exit)
+        exit_button.grid(column=0, row=0, sticky='NW')
+
+        # free text label
+        free_text = ttk.Label(self, font=("Courier", 12))
+        free_text['text'] = "Manual entry"
+        free_text.grid(column=0, row=4, sticky='E', padx=5, pady=5)
+
+        # drop down label
+        drop_down_text = ttk.Label(self, font=("Courier", 12))
+        drop_down_text['text'] = "or drop down menu"
+        drop_down_text.grid(column=0, row=5, sticky='E', padx=5, pady=5)
 
         # options
         self.var = tk.StringVar(self)
         self.var.set("Select Type")
-        option = ttk.OptionMenu(self, self.var, "Select Type", *CHOICES)
-        option.grid(column=1, row=4, sticky='N')
+        option = ttk.OptionMenu(self, self.var, "Select Subreddit", *CHOICES)
+        option.grid(column=1, row=5, sticky='WENS', padx=5, pady=5)
+
+        # free text box
+        self.text = ttk.Entry(self)
+        self.text.grid(column=1, row=4, sticky='WENS', padx=5, pady=5)
 
         # button
         button = ttk.Button(self, text="Get Images", command=self.create_img_list)
-        button.grid(column=2, row=4, sticky='N')
+        button.grid(column=2, row=4, sticky='WENS', padx=5, pady=5)
 
         # navigation buttons
         back = ttk.Button(self, text="<--", command=self.decrese_num)
-        back.grid( column=1, row=5)
+        back.grid( column=2, row=5, sticky='WENS', padx=5, pady=5)
         forward = ttk.Button(self, text="-->", command=self.increse_num)
-        forward.grid(column=2, row=5)
+        forward.grid(column=3, row=5, sticky='WENS', padx=5, pady=5)
 
         # side panel buttons
         browser_button = ttk.Button(self, text="Open in Browser", command=self.load_browser)
-        browser_button.grid(column=3, row=4, sticky='WENS')
-        exit_button = ttk.Button(self, text="Exit", command=self.exit)
-        exit_button.grid(column=3, row=5, sticky='WENS')
+        browser_button.grid(column=3, row=4, sticky='WENS', padx=5, pady=5)
 
         # set initial title
         self.img_title = ttk.Label(self, font=("Courier", 15), wraplength=750)
         self.img_title['text'] = "Minions"
-        self.img_title.grid(column=1, row=6, rowspan=2, columnspan=2, sticky='NSEW' )
+        self.img_title.grid(column=0, row=6, rowspan=2, columnspan=4, sticky='NSEW', padx=5, pady=5)
 
         # set inital holding image
         init_image = "initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = ttk.Label(self, image=self.photo)
-        self.img_label.grid(column=1, row=8, columnspan=3, padx=5, pady=5)
+        self.img_label.grid(column=0, row=8, columnspan=4, padx=5, pady=5)
+
+        self.master.bind("<Return>", self.bind_handler)
 
     def get_title(self):
         self.img_title['text'] = TITLE[self.img_num]
 
+    def bind_handler(self, idk):
+        self.create_img_list()
+
     def create_img_list(self):
-        self.r.load_subreddit(self.var.get())
+        #free_text = self.text.get()
+        if len(self.text.get()) > 0:
+            sub = self.text.get()
+            self.r.load_subreddit(sub)
+        else:
+            self.r.load_subreddit(self.var.get())
         self.img_num = 0
         self.get_image()
 
     def get_image(self):
-        image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
-
+        try:
+            image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
+        except:
+            self.no_images()
         # internal data file
         data_stream = BytesIO(image_bytes)
         # open as a PIL image object
@@ -155,11 +185,7 @@ class GUI(ttk.Frame):
 
         # if none found then show empty image
         if res == 0:
-            self.img_title['text'] = "No anamated images found!"
-            self.path = os.getcwd() + "/empty.jpeg"
-            image = Image.open(self.path)
-            self.photo = ImageTk.PhotoImage(image)
-            self.img_label.config(image=self.photo)
+            self.no_images()
         elif res == 1:
             self.img_title['text'] = "Web page loaded! Have fun ;)"
             self.path = os.getcwd() + "/browser.jpg"
@@ -167,6 +193,12 @@ class GUI(ttk.Frame):
             self.photo = ImageTk.PhotoImage(image)
             self.img_label.config(image=self.photo)
 
+    def no_images(self):
+        self.img_title['text'] = "No images found! :'("
+        self.path = os.getcwd() + "/empty.jpeg"
+        image = Image.open(self.path)
+        self.photo = ImageTk.PhotoImage(image)
+        self.img_label.config(image=self.photo)
 
     def increse_num(self):
         self.img_num += 1
