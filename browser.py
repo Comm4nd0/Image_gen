@@ -59,6 +59,7 @@ class createWebpage():
 
 
         <body>
+        <h1>IMAGE GEN</h1>
         <a href="initial.jpg" style="display: none;"><img src="initial.jpg" alt="Waves" data-description="Minions!"></a>
         """
 
