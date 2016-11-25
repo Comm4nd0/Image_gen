@@ -39,11 +39,13 @@ class createWebpage():
             return 1
 
     def clear_cache(self):
+        self.image_html = ""
         del self.image_paths[:]
         del self.img_thumbnails[:]
 
     def makeHTML(self):
         num = 0
+
         for url in self.image_paths:
             self.image_html += '<a href="' + url + '" data-poster="' + self.img_thumbnails[num] + '" data-webm="' + url + '"><img src="' + self.img_thumbnails[num] + '"  width="250px" height="250px"></a>'
             num += 1
