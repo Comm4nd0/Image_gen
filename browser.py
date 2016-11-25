@@ -39,7 +39,7 @@ class createWebpage():
 
     def makeHTML(self):
         num = 0
-
+        self.image_html = ""
         for url in self.image_paths:
             self.image_html += '<a href="' + url + '" data-poster="' + self.img_thumbnails[num] + '" data-webm="' + url + '"><img src="' + self.img_thumbnails[num] + '"  width="250px" height="250px"></a>'
             num += 1
