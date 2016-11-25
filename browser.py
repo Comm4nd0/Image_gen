@@ -22,10 +22,11 @@ class createWebpage():
         self.web = praw.Reddit(user_agent='gimmy ana_pics')
         self.http = urllib3.PoolManager()
 
-    def get_urls(self, subreddit):
+    def get_urls(self, sub):
         del self.image_paths[:]
         del self.img_thumbnails[:]
-        self.subreddit = self.web.get_subreddit(subreddit).get_hot(limit=100)
+        self.sub = sub
+        self.subreddit = self.web.get_subreddit(self.sub).get_hot(limit=100)
         for item in self.subreddit:
             if os.path.splitext(item.url)[1] in ANA_FORMAT:
                 self.image_paths.append(item.url)
@@ -33,9 +34,8 @@ class createWebpage():
             elif 'gfycat.com' in item.url:
                 self.get_gfycat(item.url)
                 self.img_thumbnails.append(item.thumbnail)
-        else:
-            self.makeHTML()
-            return 1
+        self.makeHTML()
+        return 1
 
     def makeHTML(self):
         num = 0
@@ -53,7 +53,10 @@ class createWebpage():
 
 
         <body>
-        <h1>IMAGE GEN</h1>
+        <h1>IMAGE GEN - """
+        self.html += self.sub
+
+        self.html += """</h1>
         <a href="initial.jpg" style="display: none;"><img src="initial.jpg" alt="Waves" data-description="Minions!"></a>
         """
 
