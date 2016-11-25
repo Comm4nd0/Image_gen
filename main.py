@@ -28,7 +28,7 @@ import praw
 import os
 import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw', 'HighResNSFW', 'tightdresses', 'BustyPetite', 'boltedontits', 'mastersofanal', 'porninfifteenseconds', '60fpsporn']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
@@ -181,7 +181,11 @@ class GUI(ttk.Frame):
 
     def load_browser(self):
         # load images and webpage
-        res = self.web.get_urls(self.var.get())
+        if len(self.text.get()) > 0:
+            sub = self.text.get()
+            res = self.web.get_urls(sub)
+        else:
+            res = self.web.get_urls(self.var.get())
 
         # if none found then show empty image
         if res == 0:
