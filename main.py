@@ -24,8 +24,10 @@ except ImportError:
     from urllib import urlopen
 
 from PIL import Image, ImageTk
+from functools import partial
 import praw
 import os
+import webbrowser
 import browser
 
 CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'BetterEveryLoop', 'instant_regret', 'nsfw']
@@ -173,11 +175,11 @@ class GUI(ttk.Frame):
 
     def get_image(self):
         try:
-            image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
+            self.image_bytes = urlopen(self.r.get_img_url(self.img_num)).read()
         except:
             self.no_images()
         # internal data file
-        data_stream = BytesIO(image_bytes)
+        data_stream = BytesIO(self.image_bytes)
         # open as a PIL image object
         image = Image.open(data_stream)
         # resize image
@@ -192,6 +194,16 @@ class GUI(ttk.Frame):
 
     def get_title(self):
         self.img_title['text'] = TITLE[self.img_num]
+        self.img_title['cursor'] = "hand2"
+        self.img_title.bind("<Enter>", partial(self.color_config, "blue"))
+        self.img_title.bind("<Leave>", partial(self.color_config, "white"))
+        self.img_title.bind("<Button-1>", self.open_link)
+
+    def color_config(self, color, wtf):
+        self.img_title.configure(foreground=color)
+
+    def open_link(self, wtf):
+        webbrowser.open(self.r.get_img_url(self.img_num))
 
     def load_browser(self):
         # load images and webpage
