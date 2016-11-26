@@ -26,7 +26,20 @@ class createWebpage():
         del self.image_paths[:]
         del self.img_thumbnails[:]
         self.sub = sub
+
         self.subreddit = self.web.get_subreddit(self.sub).get_hot(limit=100)
+        # test to see if sub_res has any content
+        try:
+            for test in self.subreddit:
+                test = test.title
+                print(test)
+                if len(test) > 0:
+                    break
+                else:
+                    break
+        except:
+            self.subreddit = self.web.search(self.sub, limit=100)
+
         for item in self.subreddit:
             if os.path.splitext(item.url)[1] in ANA_FORMAT:
                 self.image_paths.append(item.url)
@@ -34,6 +47,7 @@ class createWebpage():
             elif 'gfycat.com' in item.url:
                 self.get_gfycat(item.url)
                 self.img_thumbnails.append(item.thumbnail)
+
         self.makeHTML()
         return 1
 
