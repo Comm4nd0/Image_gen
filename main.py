@@ -196,7 +196,7 @@ class GUI(ttk.Frame):
         self.img_title['text'] = TITLE[self.img_num]
         self.img_title['cursor'] = "hand2"
         self.img_title.bind("<Enter>", partial(self.color_config, "blue"))
-        self.img_title.bind("<Leave>", partial(self.color_config, "white"))
+        self.img_title.bind("<Leave>", partial(self.color_config, "grey"))
         self.img_title.bind("<Button-1>", self.open_link)
 
     def color_config(self, color, wtf):
