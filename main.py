@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 #   Documentation is like sex.
@@ -28,23 +28,38 @@ import praw
 import os
 import browser
 
-CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'instant_regret', 'nsfw']
+CHOICES = ['pics', 'gifs', 'aww', 'EarthPorn', 'funny', 'BetterEveryLoop', 'instant_regret', 'nsfw']
 IMG_FORMATS = ['.jpg', '.png', '.jpeg', '.bmp']
 GIF = []
 TITLE = []
+DIR = os.path.dirname(os.path.realpath(__file__))
 
 class ImageGetter(praw.Reddit):
-    def load_subreddit(self, subreddit):
-        #makes the generator. Reddit has a limit of 1,000 results
+    def load_subreddit(self, key_word):
+        # makes the generator. Reddit has a limit of 1,000 results
         self.images = []
-        self.subreddit = self.get_subreddit(subreddit).get_hot(limit=None)
+        self.key_word = key_word
+
+        # try getting images from a subreddit
+        self.sub_res = self.get_subreddit(self.key_word).get_hot(limit=None)
+        # test to see if sub has any content
+        try:
+            for test in self.sub_res:
+                test = test.title
+                if len(test) > 0:
+                    break
+                else:
+                    break
+        except:
+            # no subreddit exisist so search for the key word instead
+            self.sub_res = self.search(self.key_word, limit=None)
         del TITLE[:]
 
     def get_img_url(self, num=None):
         """returns the image url from the list or the next image in the subreddit"""
         global TITLE
         if num is None or num >= len(self.images):
-            for item in self.subreddit:
+            for item in self.sub_res:
                 if os.path.splitext(item.url)[1] in IMG_FORMATS:
                     TITLE.append(item.title)
                     self.images.append(item.url)
@@ -54,7 +69,6 @@ class ImageGetter(praw.Reddit):
 
     def get_img_title(self, title):
         return title
-
 
 class GUI(ttk.Frame):
     def __init__(self, master):
@@ -136,7 +150,7 @@ class GUI(ttk.Frame):
         self.img_title.grid(column=0, row=6, rowspan=2, columnspan=4, sticky='NSEW', padx=5, pady=5)
 
         # set inital holding image
-        init_image = "initial.jpg"
+        init_image = DIR + "/initial.jpg"
         image = Image.open(init_image)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label = ttk.Label(self, image=self.photo)
@@ -144,17 +158,14 @@ class GUI(ttk.Frame):
 
         self.master.bind("<Return>", self.bind_handler)
 
-    def get_title(self):
-        self.img_title['text'] = TITLE[self.img_num]
-
-    def bind_handler(self, idk):
+    def bind_handler(self, wtf):
+        #print(wtf)
         self.create_img_list()
 
     def create_img_list(self):
         #free_text = self.text.get()
         if len(self.text.get()) > 0:
-            sub = self.text.get()
-            self.r.load_subreddit(sub)
+            self.r.load_subreddit(self.text.get())
         else:
             self.r.load_subreddit(self.var.get())
         self.img_num = 0
@@ -179,6 +190,9 @@ class GUI(ttk.Frame):
         self.img_label.config(image=self.photo)
         self.get_title()
 
+    def get_title(self):
+        self.img_title['text'] = TITLE[self.img_num]
+
     def load_browser(self):
         # load images and webpage
         if len(self.text.get()) > 0:
@@ -192,14 +206,14 @@ class GUI(ttk.Frame):
             self.no_images()
         elif res == 1:
             self.img_title['text'] = "Web page loaded! Have fun ;)"
-            self.path = os.getcwd() + "/browser.jpg"
+            self.path = DIR + "/browser.jpg"
             image = Image.open(self.path)
             self.photo = ImageTk.PhotoImage(image)
             self.img_label.config(image=self.photo)
 
     def no_images(self):
         self.img_title['text'] = "No images found! :'("
-        self.path = os.getcwd() + "/empty.jpeg"
+        self.path = DIR + "/empty.jpeg"
         image = Image.open(self.path)
         self.photo = ImageTk.PhotoImage(image)
         self.img_label.config(image=self.photo)
